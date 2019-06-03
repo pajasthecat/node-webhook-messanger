@@ -5,8 +5,12 @@ const helmet = require('helmet');
 const app = express();
 
 //Middlewear
-app.use(bodyParser);
-app.use(helmet);
+app.use(bodyParser.json());
+app.use(helmet());
+
+const webhook = require("./controllers/webhook");
+
+app.use("/v1/api/webhook", webhook)
 
 const port = process.env.port || 5000;
 
