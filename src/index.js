@@ -12,6 +12,6 @@ const webhook = require("./controllers/webhook");
 
 app.use("/v1/api/webhook", webhook)
 
-const port = process.env.port || 5000;
+const port = parseInt(process.env.PORT) || 5000;
 
 app.listen(port, () => console.log(`Listening to port ${port}`))
