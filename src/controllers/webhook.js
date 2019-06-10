@@ -23,7 +23,7 @@ router.get("/", (req, res) => {
   if (mode && token) {
     if (mode == "subscribe" && token == verifyToken) {
       console.log("Verified");
-      res.sendStatus(200).send(challenge);
+      res.status(200).send(challenge);
     }
   }
   res.sendStatus(403);
