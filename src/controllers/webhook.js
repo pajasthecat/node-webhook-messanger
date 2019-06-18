@@ -1,5 +1,6 @@
 const express = require("express");
 const request = require("request");
+const summarizeTextClient = require("../clients/summarizeTextClient.js");
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 const router = express.Router();
 
@@ -47,27 +48,31 @@ router.post("/", (req, res) => {
 function handleMessage(sender_psid, received_message) {
   var response;
 
-  var isUrl =  isURL(received_message.text);
+  var isUrl = isURL(received_message.text);
 
   if (isUrl) {
-    response = {
-      text: `You said "${received_message.text}"`
-    };
-  }else{
+    summarizeTextClient.getContentFromUrl(received_message.text, function(err, base64Content) {
+      summarizeTextClient.getBrief(base64Content, function(err, data) {
+        response = {
+          text: `${data}`
+        };
+        callSendAPI(sender_psid, response);
+      });
+    });
+  } else {
     response = {
       text: `That does not look like an URL. I would prefer if you sent me an URL to the text you would like me to brief for u :)"`
     };
-  }
-  callSendAPI(sender_psid, response);
-
+    callSendAPI(sender_psid, response);
+  } 
 }
 
 function handlePostBack(sender_psid, received_postback) {}
 
-function isURL(message_text){
-var pattern = '((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)';
-var match = message_text.match(pattern);
-return match;
+function isURL(message_text) {
+  var pattern = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/;
+  var match = message_text.match(pattern);
+  return match;
 }
 
 function callSendAPI(sender_psid, response) {
