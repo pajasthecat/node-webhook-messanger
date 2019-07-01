@@ -11,14 +11,15 @@ module.exports = {
         }
       },
       (err, res, body) => {
-        if (!err) {
+        if (res.statusCode == 200) {
           console.log("Got content");
           var json = JSON.parse(body);
           var contentAsBytes = json.contentAsBytes[0];
           return callback(false, contentAsBytes);
-        } else {
-          console.error("Unable to get content");
-          return callback(null, error);
+        } else if(res.statusCode == 400){
+          console.error("Unable to get content.");
+        }else {
+          console.error("Unknown error");
         }
       }
     );
